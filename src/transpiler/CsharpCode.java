@@ -16,7 +16,7 @@ public class CsharpCode extends JavaCode{
         return ": "+this.superClass;
     }
 
-    protected void generateClassName() {
+    protected void convertClassName() {
         StringJoiner sj = new StringJoiner(" ");
         sj.add(this.convertModifier(this.classFile.getModifiers()));
         sj.add(!this.classFile.isInterface()?"class":"");
@@ -27,14 +27,19 @@ public class CsharpCode extends JavaCode{
     }
 
     public void assembleCode() {
-        this.generate();
         StringJoiner packageName = new StringJoiner(".");
         packageName.add("namespace App");
         packageName.add(this.classFile.getPackageName());
         String listField = String.join("\n ",this.fields);
         String listMethod = String.join("\n ",this.methods);
-        this.fields.clear();
-        this.methods.clear();
-        System.out.println(packageName+" { \n "+this.classDefinition + " {\n" + listField + listMethod + "\n }\n}");
+        String listConstructor = String.join("\n ",this.constructorsDef);
+        System.out.println(packageName+" { \n "+this.classDefinition + " {\n " + listConstructor + listField + listMethod + "\n }\n}");
+    }
+
+    public Code copy() {
+        CsharpCode cCode = new CsharpCode();
+        cCode.classFile = this.classFile;
+        cCode.classLoader = this.classLoader;
+        return cCode;
     }
 }

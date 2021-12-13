@@ -2,6 +2,8 @@ package transpiler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -73,7 +75,10 @@ public class JavaCode extends Code {
         return "implements "+interfaces;
     }
     protected String convertExtends() {
-        return "extends "+this.superClass;
+        if(!this.superClass.equals("")){
+            return "extends "+this.superClass;
+        }
+        return "";
     }
     protected String convertMethod(Method m) {
         StringJoiner mj = new StringJoiner(" ");
@@ -99,7 +104,7 @@ public class JavaCode extends Code {
         }
         return " "+sj.toString();
     }
-    protected String convertParameter(Method m) {
+    protected String convertParameter(Executable m) {
         StringJoiner pj = new StringJoiner(", ");
         for(Parameter parameter: m.getParameters()) {
             this.importedPackage.add(parameter.getType().getPackageName());
@@ -108,7 +113,7 @@ public class JavaCode extends Code {
         return "("+pj.toString()+");";
     }
 
-    protected void generateClassName() {
+    protected void convertClassName() {
         StringJoiner sj = new StringJoiner(" ");
         sj.add(this.convertModifier(this.classFile.getModifiers()));
         sj.add(!this.classFile.isInterface()?"class":"");
@@ -118,22 +123,32 @@ public class JavaCode extends Code {
         this.classDefinition = sj.toString();
     }
 
-    protected void generateSuperClass() {
-        if(this.classFile.getSuperclass().getSimpleName().equals("Object")){return;}
-        this.superClass = this.classFile.getSuperclass().getSimpleName();
+    protected String convertConstructor(Constructor<?> c) {
+        StringJoiner sj = new StringJoiner(" ");
+        sj.add(" "+this.convertModifier(c.getModifiers()));
+        sj.add(classFile.getSimpleName().concat(this.convertParameter(c)));
+        return sj.toString();
     }
 
+
     public void assembleCode() {
-        this.generate();
         String packageName = "";
         if(!this.classFile.getPackageName().equals("")){
             packageName = "package "+this.classFile.getPackage().getName()+";";
         }
         String listField = String.join("\n ",this.fields);
         String listMethod = String.join("\n ",this.methods);
+        String listConstructor = String.join("\n ",this.constructorsDef);
         this.fields.clear();
         this.methods.clear();
-                    System.out.println(packageName+"\n"+this.classDefinition + " {\n" + listField + listMethod + "\n}");
+                    System.out.println(packageName+"\n"+this.classDefinition + " {\n"+ listConstructor + listField + listMethod + "\n}");
+    }
+
+    public Code copy() {
+        JavaCode jCode = new JavaCode();
+        jCode.classFile = this.classFile;
+        jCode.classLoader = this.classLoader;
+        return jCode;
     }
  
  }

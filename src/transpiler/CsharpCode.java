@@ -11,6 +11,40 @@ public class CsharpCode extends JavaCode{
         }
         return interfaces;
     }
+
+    protected String convertModifier(int mod) {
+        StringJoiner sj = new StringJoiner(" ");
+        if ((mod & 1) != 0) {
+            sj.add("public");
+        }
+
+
+        if ((mod & 4) != 0) {
+            sj.add("protected");
+        }
+
+        if ((mod & 2) != 0) {
+            sj.add("private");
+        }
+
+        if ((mod & 512) != 0) {
+            return "interface";
+        }
+
+        if ((mod & 1024) != 0) {
+            sj.add("abstract");
+        }
+
+        if ((mod & 8) != 0) {
+            sj.add("static");
+        }
+
+        if ((mod & 16) != 0) {
+            sj.add("final");
+        }
+
+        return sj.toString();
+    }
     protected String convertExtends() {
         if(this.superClass.equals("")) return "";
         return ": "+this.superClass;

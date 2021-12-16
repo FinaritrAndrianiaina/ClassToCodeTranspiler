@@ -2,6 +2,8 @@
 
 This program can convert compiled java .class to another programming language
 
+You need java 11 for this to work.
+
 ## How to use
 
 ```bash

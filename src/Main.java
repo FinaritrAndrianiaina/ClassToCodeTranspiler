@@ -12,17 +12,17 @@ public class Main {
                     break;
                 case "csharp":
                     lang = new CsharpCode();
+                    break;
                 case "ts":
                     lang = new TsCode();
+                    break;
                 default:
                     break;
             }
             String packagename = "";
-            System.out.println(args.length);
             if(args.length>3){
                 packagename =args[3];
             }
-            A a = new A();
             FileClassLoader fCL = new FileClassLoader(fileprefix,classname,packagename);
             var transpiler = new Transpiler(fCL);
             transpiler.setCode(lang);
